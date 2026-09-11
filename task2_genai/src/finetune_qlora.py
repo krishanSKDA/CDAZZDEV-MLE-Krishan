@@ -4,8 +4,8 @@ Task 2B - QLoRA Fine-Tuning Execution
 Base model: microsoft/Phi-3-mini-4k-instruct (3.8B params).
 Chosen because it fits comfortably in Colab's free T4 (16GB) with 4-bit
 NF4 quantization, has a permissive license, and is NOT the same model
-used as the teacher (Mistral Large via Mistral AI) -- per the rubric's
-explicit warning against using the same model as teacher and student.
+# used as the teacher (Gemini) -- per the rubric's explicit warning
+# against using the same model as teacher and student.
 
 Every hyperparameter below is set with a written justification, per the
 Task 2B rubric requirement that no parameter be left at its unexplained

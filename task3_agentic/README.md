@@ -4,14 +4,14 @@
 - `src/tools.py` - the five required tools, each `@observed_tool`-wrapped for logging, fails soft on error
 - `src/memory.py` - observability decorator, short-term (in-session) memory, persistent (on-disk) cache
 - `src/schemas.py` - Pydantic schemas for the Agent A -> Agent B structured handoff
-- `src/single_agent.py` - Task 3A: manual ReAct loop over Mistral AI function-calling; autonomous tool selection, visible observe/replan trace
+- `src/single_agent.py` - Task 3A: manual ReAct loop over Gemini function-calling; autonomous tool selection, visible observe/replan trace
 - `src/multi_agent.py` - Task 3B: Data Analyst + Research Writer agents with restricted tool access and a one-shot critique loop
 - `notebook_task3_agentic.ipynb` - Colab notebook running all of 3A/3B/3C end to end
 - `logs/agent_trace.jsonl` - generated at runtime; committed after a real run
 
 ## Run in Colab
 1. Open `notebook_task3_agentic.ipynb`.
-2. Add your Mistral AI API key as a Colab secret named `MISTRAL_API_KEY`.
+2. Add your Gemini API key as a Colab secret named `GEMINI_API_KEY`.
 3. Run all cells. `logs/agent_trace.jsonl` will be populated as tools are called.
 
 ## Design notes

@@ -30,11 +30,11 @@ from report_renderer import render_report
 
 def main() -> None:
     ticker = os.environ.get("TICKER", "AAPL")
-    api_key = os.environ.get("MISTRAL_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise EnvironmentError(
-            "MISTRAL_API_KEY is not set. Export it before running this script. "
-            "Example: $env:MISTRAL_API_KEY='your_key'"
+            "GEMINI_API_KEY is not set. Export it before running this script. "
+            "Example: $env:GEMINI_API_KEY='your_key'"
         )
 
     result = run_pipeline(ticker)

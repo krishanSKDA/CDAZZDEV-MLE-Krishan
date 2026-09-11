@@ -14,7 +14,7 @@ Submission for the Senior Machine Learning Engineer technical assessment
    **public** GitHub repository.
 2. In Google Colab, add these as **Secrets** (key icon, left sidebar) --
    never paste them directly into any cell:
-   - `MISTRAL_API_KEY` (used in all three tasks).
+   - `GEMINI_API_KEY` (used in all three tasks).
    - `HF_TOKEN` (free, huggingface.co/settings/tokens) -- Task 2 only, to
      push the merged fine-tuned model.
    - Weights & Biases API key -- Task 2 only, optional (console logging works without it).

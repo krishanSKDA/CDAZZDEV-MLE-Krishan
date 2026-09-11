@@ -17,32 +17,35 @@ from __future__ import annotations
 import json
 import os
 
-try:
-    from mistralai import Mistral
-except ImportError:  # newer SDK layout
-    from mistralai.client import Mistral
+import google.generativeai as genai
 
 from tools import get_price_data, calculate_volatility, llm_sentiment, get_news, web_search
 from schemas import DataBrief, ClarificationRequest, ResearchReport, RiskItem
 
-MODEL = "mistral-large-latest"
+MODEL = "gemini-2.0-flash"
 
 
-def _client() -> Mistral:
-    api_key = os.environ.get("MISTRAL_API_KEY")
+def _client():
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        raise EnvironmentError("MISTRAL_API_KEY not set")
-    return Mistral(api_key=api_key)
+        raise EnvironmentError("GEMINI_API_KEY not set")
+    genai.configure(api_key=api_key)
+    return genai
 
 
-def _llm_json(client: Mistral, system: str, user: str) -> dict:
-    resp = client.chat.complete(
-        model=MODEL,
-        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-        response_format={"type": "json_object"},
-        temperature=0.2,
+def _llm_json(client, system: str, user: str) -> dict:
+    model = client.GenerativeModel(MODEL)
+    resp = model.generate_content(
+        [
+            {"text": system},
+            {"text": user},
+        ],
+        generation_config={
+            "temperature": 0.2,
+            "response_mime_type": "application/json",
+        },
     )
-    return json.loads(resp.choices[0].message.content)
+    return json.loads(resp.text)
 
 
 # ---------------------------------------------------------------------------

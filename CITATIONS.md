@@ -12,6 +12,11 @@ modules, and the Task 3 tool implementations, single-agent ReAct loop, and
 multi-agent critique-loop pipeline -- was drafted with the assistance of
 Claude (Anthropic), via the claude.ai chat interface, on 2026-09-11.
 
+The implementation was then iteratively adjusted from earlier Mistral/Groq
+provider attempts to the final Gemini-based configuration because several
+free-tier or restricted API paths were blocked or inconsistent in practice,
+so Gemini was selected as the reliable provider for the final submission.
+
 Representative prompts used:
 - "Build a Task 1A data pipeline: yfinance OHLCV fetch (>=2yr, no hardcoded
   dates), first-principles SMA/RSI/MACD/Bollinger Bands, news retrieval,
@@ -37,9 +42,11 @@ before inclusion.** I take responsibility for every design decision in this
 submission and can defend each one in the follow-up interview.
 
 ## What still needs to be done by the candidate before submission
-- Running each notebook against a live Mistral AI API key and a real T4 GPU
+- Running each notebook against a live Gemini API key and a real T4 GPU
   session in Colab (this could not be executed in the AI assistant's
-  sandbox, which has no GPU and no access to the Mistral/yfinance/HF endpoints).
+  sandbox, which has no GPU and no direct access to the required external
+  endpoints; some earlier free-tier/restricted provider attempts were blocked,
+  which is why the final project is configured for Gemini).
 - Filling in the Task 2C qualitative-analysis paragraphs with real
   observations from the actual fine-tuning run.
 - Manually labelling the >= 10 fine-tuned responses in
@@ -50,8 +57,8 @@ submission and can defend each one in the follow-up interview.
 ## Open-source code adapted
 No third-party repository code was copied or adapted beyond standard,
 publicly-documented library usage (yfinance, transformers, peft, trl,
-bitsandbytes, mistralai, duckduckgo-search, rouge_score, bert_score) per
-their respective official APIs/docs.
+bitsandbytes, google-generativeai, duckduckgo-search, rouge_score,
+bert_score) per their respective official APIs/docs.
 
 ## Teacher model system prompt (Task 2A)
 The full teacher system prompt used for synthetic training-data generation

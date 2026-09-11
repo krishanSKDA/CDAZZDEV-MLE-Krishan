@@ -24,7 +24,7 @@ This is chosen deliberately over a generic chatbot/creative task: outputs
 are checkable against a fixed taxonomy, which is what makes rigorous
 ROUGE-L / hallucination-rate evaluation in Task 2C meaningful.
 
-Dataset generation uses Mistral AI as the teacher model. The full system
+Dataset generation uses Gemini as the teacher model. The full system
 prompt used is TEACHER_SYSTEM_PROMPT below (also required in the submission
 per Section 2.2).
 """
@@ -35,15 +35,12 @@ import os
 import random
 from collections import Counter
 
-try:
-    from mistralai import Mistral
-except ImportError:  # newer SDK layout
-    from mistralai.client import Mistral
+import google.generativeai as genai
 from pydantic import ValidationError
 
 from schemas import TrainingExample
 
-TEACHER_MODEL = "mistral-large-latest"
+TEACHER_MODEL = "gemini-2.0-flash"
 
 CLAUSE_TYPES = [
     "data_privacy", "conflict_of_interest", "anti_money_laundering",
@@ -86,26 +83,29 @@ classify it. Respond with ONLY a JSON object, no markdown fences:
 }"""
 
 
-def _client() -> Mistral:
-    api_key = os.environ.get("MISTRAL_API_KEY")
+def _client():
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        raise EnvironmentError("MISTRAL_API_KEY not set")
-    return Mistral(api_key=api_key)
+        raise EnvironmentError("GEMINI_API_KEY not set")
+    genai.configure(api_key=api_key)
+    return genai
 
 
-def generate_one_example(client: Mistral, clause_type: str, risk_level: str) -> TrainingExample | None:
+def generate_one_example(client, clause_type: str, risk_level: str) -> TrainingExample | None:
     user_prompt = f"clause_type: {clause_type}\nrisk_level: {risk_level}"
     try:
-        resp = client.chat.complete(
-            model=TEACHER_MODEL,
-            messages=[
-                {"role": "system", "content": TEACHER_SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt},
+        model = client.GenerativeModel(TEACHER_MODEL)
+        resp = model.generate_content(
+            [
+                {"text": TEACHER_SYSTEM_PROMPT},
+                {"text": user_prompt},
             ],
-            response_format={"type": "json_object"},
-            temperature=0.9,  # high temperature for lexical diversity across examples
+            generation_config={
+                "temperature": 0.9,
+                "response_mime_type": "application/json",
+            },
         )
-        raw = json.loads(resp.choices[0].message.content)
+        raw = json.loads(resp.text)
         assistant_json = json.dumps({
             "clause_type": raw["clause_type"],
             "risk_level": raw["risk_level"],

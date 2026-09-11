@@ -1,14 +1,14 @@
 """
 Task 1B - LLM Sentiment and Signal Reasoning
 
-Uses the Mistral AI API for inference. Prompts are kept as module-level
+Uses the Gemini API for inference. Prompts are kept as module-level
 template constants, separate from business logic. All responses are parsed
 as JSON and validated against the Pydantic schemas in schemas.py;
 validation failures are logged and handled (retried once, then skipped)
 rather than crashing the pipeline.
 
-Set MISTRAL_API_KEY as an environment variable before running -- never
-hardcode it in this file (see CITATIONS.md / submission checklist).
+Set GEMINI_API_KEY as an environment variable before running -- never
+hardcode it in this file.
 """
 from __future__ import annotations
 
@@ -17,17 +17,14 @@ import logging
 import os
 from typing import Optional
 
-try:
-    from mistralai import Mistral
-except ImportError:  # newer SDK layout
-    from mistralai.client import Mistral
+import google.generativeai as genai
 from pydantic import ValidationError
 
 from schemas import HeadlineSentiment, AggregateSentiment, TradeSignal
 
 logger = logging.getLogger("llm_reasoning")
 
-MISTRAL_MODEL = "mistral-large-latest"
+GEMINI_MODEL = "gemini-2.0-flash"
 
 # ---------------------------------------------------------------------------
 # Prompt templates (kept separate from business logic)
@@ -72,38 +69,41 @@ YTD return: {ytd_return}%
 Aggregate news sentiment score: {sentiment_score} (-1 very negative to +1 very positive)"""
 
 
-def _get_client() -> Mistral:
-    api_key = os.environ.get("MISTRAL_API_KEY")
+def _get_client():
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise EnvironmentError(
-            "MISTRAL_API_KEY not set. Export it as an environment variable "
+            "GEMINI_API_KEY not set. Export it as an environment variable "
             "(never hardcode it in source)."
         )
-    return Mistral(api_key=api_key)
+    genai.configure(api_key=api_key)
+    return genai
 
 
-def _call_llm_json(client: Mistral, system_prompt: str, user_prompt: str) -> Optional[dict]:
+def _call_llm_json(client, system_prompt: str, user_prompt: str) -> Optional[dict]:
     """Call the LLM and parse the response as JSON. Returns None on failure."""
     try:
-        response = client.chat.complete(
-            model=MISTRAL_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
+        model = client.GenerativeModel(GEMINI_MODEL)
+        response = model.generate_content(
+            [
+                {"text": system_prompt},
+                {"text": user_prompt},
             ],
-            temperature=0.2,
-            response_format={"type": "json_object"},
+            generation_config={
+                "temperature": 0.2,
+                "response_mime_type": "application/json",
+            },
         )
-        content = response.choices[0].message.content
-        if not content:
+        text = getattr(response, "text", "")
+        if not text:
             return None
-        return json.loads(content)
+        return json.loads(text)
     except (json.JSONDecodeError, Exception) as exc:
         logger.warning("LLM call/parse failed: %s", exc)
         return None
 
 
-def classify_headline(client: Mistral, headline: str, retries: int = 1) -> Optional[HeadlineSentiment]:
+def classify_headline(client, headline: str, retries: int = 1) -> Optional[HeadlineSentiment]:
     """Classify one headline, validating against HeadlineSentiment. Retries once on failure."""
     user_prompt = SENTIMENT_USER_TEMPLATE.format(headline=headline)
     for attempt in range(retries + 1):
@@ -147,7 +147,7 @@ def aggregate_sentiment(results: list[HeadlineSentiment]) -> AggregateSentiment:
     )
 
 
-def classify_all_headlines(client: Mistral, headlines: list[dict]) -> tuple[list[HeadlineSentiment], AggregateSentiment]:
+def classify_all_headlines(client, headlines: list[dict]) -> tuple[list[HeadlineSentiment], AggregateSentiment]:
     results = []
     for item in headlines:
         title = item.get("title", "")
@@ -160,7 +160,7 @@ def classify_all_headlines(client: Mistral, headlines: list[dict]) -> tuple[list
 
 
 def generate_trade_signal(
-    client: Mistral, ticker: str, latest_indicators: dict, sentiment: AggregateSentiment,
+    client, ticker: str, latest_indicators: dict, sentiment: AggregateSentiment,
     retries: int = 1,
 ) -> Optional[TradeSignal]:
     user_prompt = SIGNAL_USER_TEMPLATE.format(

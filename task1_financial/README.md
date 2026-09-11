@@ -4,13 +4,13 @@
 - `src/indicators.py` - SMA/RSI/MACD/Bollinger Bands from first principles (no TA-Lib)
 - `src/data_pipeline.py` - Task 1A: OHLCV fetch, news retrieval, summary dict, robustness
 - `src/schemas.py` - Pydantic models enforcing structured LLM output
-- `src/llm_reasoning.py` - Task 1B: headline sentiment + Buy/Hold/Sell signal reasoning via Mistral AI
+- `src/llm_reasoning.py` - Task 1B: headline sentiment + Buy/Hold/Sell signal reasoning via Gemini
 - `src/report_renderer.py` - Bonus: styled HTML brief with embedded matplotlib chart
 - `notebook_task1_equity_research.ipynb` - Colab notebook wiring it all together
 
 ## Run in Colab
 1. Open `notebook_task1_equity_research.ipynb` in Google Colab.
-2. Add your Mistral AI API key (console.mistral.ai) as a Colab secret named `MISTRAL_API_KEY`.
+2. Add your Gemini API key as a Colab secret named `GEMINI_API_KEY`.
 3. Run all cells top to bottom. Change `TICKER` to analyse a different stock.
 
 ## Colab badge

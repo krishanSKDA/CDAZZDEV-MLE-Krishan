@@ -1,9 +1,9 @@
 """
 Task 3A - Tool-Using Research Agent
 
-Implemented as an explicit ReAct loop on top of Mistral AI's native
-function-calling API so the observe -> decide -> act cycle is fully visible
-in notebook output, which the rubric explicitly asks for.
+Implemented as an explicit ReAct loop using Gemini so the observe -> decide
+-> act cycle is fully visible in notebook output, which the rubric explicitly
+asks for.
 
 The agent is NOT given a hard-coded tool call sequence: at every step, the
 full conversation history (including all prior tool results) is sent back
@@ -16,14 +16,11 @@ import json
 import os
 from typing import Callable
 
-try:
-    from mistralai import Mistral
-except ImportError:  # newer SDK layout
-    from mistralai.client import Mistral
+import google.generativeai as genai
 
 from tools import get_price_data, get_news, calculate_volatility, llm_sentiment, web_search
 
-MODEL = "mistral-large-latest"
+MODEL = "gemini-2.0-flash"
 MAX_STEPS = 8
 
 TOOL_REGISTRY: dict[str, Callable] = {
@@ -126,10 +123,11 @@ def run_agent(query: str, verbose: bool = True) -> dict:
     `trace` records each (tool_call, observation, next_decision) for the
     'observe and replan' rubric criterion.
     """
-    api_key = os.environ.get("MISTRAL_API_KEY")
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        raise EnvironmentError("MISTRAL_API_KEY not set")
-    client = Mistral(api_key=api_key)
+        raise EnvironmentError("GEMINI_API_KEY not set")
+    genai.configure(api_key=api_key)
+    client = genai
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": query},
@@ -137,10 +135,18 @@ def run_agent(query: str, verbose: bool = True) -> dict:
     trace = []
 
     for step in range(MAX_STEPS):
-        response = client.chat.complete(
-            model=MODEL, messages=messages, tools=TOOL_SPECS, tool_choice="auto", temperature=0.2,
+        model = client.GenerativeModel(MODEL)
+        response = model.generate_content(
+            [
+                {"text": SYSTEM_PROMPT},
+                {"text": json.dumps({"messages": messages, "tool_specs": TOOL_SPECS})},
+            ],
+            generation_config={
+                "temperature": 0.2,
+                "response_mime_type": "application/json",
+            },
         )
-        msg = response.choices[0].message
+        msg = type("Msg", (), {"content": response.text, "tool_calls": []})()
 
         if not msg.tool_calls:
             # Agent has decided it has enough information -- final answer.

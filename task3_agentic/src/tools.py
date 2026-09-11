@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 from duckduckgo_search import DDGS
-from mistralai import Mistral
+import google.generativeai as genai
 
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "task1_financial", "src"))
@@ -97,30 +97,32 @@ def calculate_volatility(ticker: str, window: int = 30) -> dict:
 
 @observed_tool
 def llm_sentiment(headlines: list[str]) -> dict:
-    """Calls Mistral AI to produce a structured aggregate sentiment score for a headline list."""
+    """Calls Gemini to produce a structured aggregate sentiment score for a headline list."""
     try:
         if not headlines:
             return {"error": "no headlines provided", "overall_score": 0.0}
-        api_key = os.environ.get("MISTRAL_API_KEY")
+        api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
-            return {"error": "MISTRAL_API_KEY not set"}
-        client = Mistral(api_key=api_key)
+            return {"error": "GEMINI_API_KEY not set"}
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-2.0-flash")
         prompt = (
             "Classify the overall sentiment of these financial news headlines as a "
             "JSON object with fields overall_score (-1 to 1), positive_count, "
             "negative_count, neutral_count. Headlines:\n"
             + "\n".join(f"- {h}" for h in headlines)
         )
-        response = client.chat.complete(
-            model="mistral-large-latest",
-            messages=[
-                {"role": "system", "content": "You are a financial sentiment classifier. Respond with only JSON."},
-                {"role": "user", "content": prompt},
+        response = model.generate_content(
+            [
+                {"text": "You are a financial sentiment classifier. Respond with only JSON."},
+                {"text": prompt},
             ],
-            response_format={"type": "json_object"},
-            temperature=0.1,
+            generation_config={
+                "temperature": 0.1,
+                "response_mime_type": "application/json",
+            },
         )
-        return json.loads(response.choices[0].message.content)
+        return json.loads(response.text)
     except Exception as exc:
         return {"error": str(exc)}
 

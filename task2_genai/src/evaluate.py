@@ -17,14 +17,11 @@ from dataclasses import dataclass
 
 from rouge_score import rouge_scorer
 from bert_score import score as bertscore
-try:
-    from mistralai import Mistral
-except ImportError:  # newer SDK layout
-    from mistralai.client import Mistral
+import google.generativeai as genai
 
 from schemas import JudgeScore, ManualReviewLabel
 
-JUDGE_MODEL = "mistral-large-latest"
+JUDGE_MODEL = "gemini-2.0-flash"
 
 JUDGE_SYSTEM_PROMPT = """You are grading a financial compliance clause
 classifier's output against a gold-standard answer. Score on a 1-5 scale
@@ -58,18 +55,20 @@ def compute_bertscore_f1(predictions: list[str], references: list[str]) -> float
     return float(f1.mean())
 
 
-def llm_judge(client: Mistral, prediction: str, reference: str) -> JudgeScore | None:
+def llm_judge(client, prediction: str, reference: str) -> JudgeScore | None:
     try:
-        resp = client.chat.complete(
-            model=JUDGE_MODEL,
-            messages=[
-                {"role": "system", "content": JUDGE_SYSTEM_PROMPT},
-                {"role": "user", "content": f"Gold answer: {reference}\n\nModel output: {prediction}"},
+        model = client.GenerativeModel(JUDGE_MODEL)
+        resp = model.generate_content(
+            [
+                {"text": JUDGE_SYSTEM_PROMPT},
+                {"text": f"Gold answer: {reference}\n\nModel output: {prediction}"},
             ],
-            response_format={"type": "json_object"},
-            temperature=0.0,
+            generation_config={
+                "temperature": 0.0,
+                "response_mime_type": "application/json",
+            },
         )
-        raw = json.loads(resp.choices[0].message.content)
+        raw = json.loads(resp.text)
         return JudgeScore(**raw)
     except Exception as exc:
         print(f"Judge call failed: {exc}")

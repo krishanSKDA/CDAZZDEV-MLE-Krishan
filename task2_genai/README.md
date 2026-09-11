@@ -10,20 +10,20 @@ evaluation), not a generic chatbot task.
 
 ## Structure
 - `src/schemas.py` - Pydantic models for training examples and eval outputs
-- `src/dataset_generation.py` - Task 2A: teacher-model (Mistral AI) data generation, diversity report, JSONL chat-format split
+- `src/dataset_generation.py` - Task 2A: teacher-model (Gemini) data generation, diversity report, JSONL chat-format split
 - `src/finetune_qlora.py` - Task 2B: QLoRA fine-tuning of Phi-3-mini-4k-instruct with every hyperparameter justified in comments
 - `src/evaluate.py` - Task 2C: ROUGE-L, BERTScore F1, LLM-as-judge, manual hallucination review
 - `notebook_task2_finetune.ipynb` - Colab notebook running 2A -> 2B -> 2C end to end
 
 ## Run in Colab
 1. Runtime > Change runtime type > T4 GPU.
-2. Add Colab secrets: `MISTRAL_API_KEY` (required), `HF_TOKEN` (optional, to push
+2. Add Colab secrets: `GEMINI_API_KEY` (required), `HF_TOKEN` (optional, to push
    the merged model to Hugging Face Hub), W&B API key (optional, for loss
    logging -- otherwise skip `wandb.login()` and console logs are still printed).
 3. Run all cells top to bottom.
 
 ## Key design decisions
-- **Teacher != student**: teacher is Mistral AI; student is a
+- **Teacher != student**: teacher is Gemini; student is a
   locally fine-tuned Phi-3-mini-4k-instruct -- different models, as required.
 - **Diversity enforcement**: `generate_dataset` cycles evenly through every
   (clause_type x risk_level) combination rather than sampling randomly, so no
