@@ -33,6 +33,7 @@ from __future__ import annotations
 import json
 import os
 import random
+import time
 from collections import Counter
 
 import google.generativeai as genai
@@ -91,8 +92,9 @@ def _client():
     return genai
 
 
-def generate_one_example(client, clause_type: str, risk_level: str) -> TrainingExample | None:
+def generate_one_example(client, clause_type: str, risk_level: str, timeout_seconds: int = 60) -> TrainingExample | None:
     user_prompt = f"clause_type: {clause_type}\nrisk_level: {risk_level}"
+    start = time.time()
     try:
         model = client.GenerativeModel(TEACHER_MODEL)
         resp = model.generate_content(
@@ -104,6 +106,7 @@ def generate_one_example(client, clause_type: str, risk_level: str) -> TrainingE
                 "temperature": 0.9,
                 "response_mime_type": "application/json",
             },
+            request_options={"timeout": timeout_seconds},
         )
         raw = json.loads(resp.text)
         assistant_json = json.dumps({
@@ -112,18 +115,25 @@ def generate_one_example(client, clause_type: str, risk_level: str) -> TrainingE
             "flag_reason": raw["flag_reason"],
             "recommended_action": raw["recommended_action"],
         })
+        elapsed = time.time() - start
+        print(f"[OK] {clause_type}/{risk_level} generated in {elapsed:.1f}s")
         return TrainingExample(
             system=CLASSIFIER_SYSTEM_PROMPT,
             user=raw["clause_text"],
             assistant=assistant_json,
             topic_tag=raw["clause_type"],
         )
-    except (KeyError, ValidationError, json.JSONDecodeError) as exc:
-        print(f"Skipping malformed example ({clause_type}/{risk_level}): {exc}")
+    except (KeyError, ValidationError, json.JSONDecodeError, TimeoutError) as exc:
+        elapsed = time.time() - start
+        print(f"[SKIP] {clause_type}/{risk_level} failed after {elapsed:.1f}s: {exc}")
+        return None
+    except Exception as exc:  # pragma: no cover - network/API failures can vary by runtime
+        elapsed = time.time() - start
+        print(f"[ERROR] {clause_type}/{risk_level} timed out or failed after {elapsed:.1f}s: {type(exc).__name__}: {exc}")
         return None
 
 
-def generate_dataset(n: int = 150, seed: int = 42) -> list[TrainingExample]:
+def generate_dataset(n: int = 150, seed: int = 42, timeout_seconds: int = 60, verbose: bool = True) -> list[TrainingExample]:
     """
     Generates n examples spread across the full clause_type taxonomy and
     all three risk levels, to avoid the "near-duplicate scenario" failure
@@ -137,8 +147,10 @@ def generate_dataset(n: int = 150, seed: int = 42) -> list[TrainingExample]:
     plan = (combos * (n // len(combos) + 1))[:n]
 
     examples = []
-    for clause_type, risk_level in plan:
-        ex = generate_one_example(client, clause_type, risk_level)
+    for idx, (clause_type, risk_level) in enumerate(plan, start=1):
+        if verbose:
+            print(f"[{idx}/{len(plan)}] generating {clause_type}/{risk_level}")
+        ex = generate_one_example(client, clause_type, risk_level, timeout_seconds=timeout_seconds)
         if ex is not None:
             examples.append(ex)
     return examples
