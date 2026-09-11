@@ -57,7 +57,7 @@ class DataAnalystAgent:
 
     ALLOWED_TOOLS = {"get_price_data", "calculate_volatility", "llm_sentiment"}
 
-    def __init__(self, client: Mistral):
+    def __init__(self, client):
         self.client = client
 
     def build_brief(self, ticker: str) -> DataBrief:
@@ -113,7 +113,7 @@ class ResearchWriterAgent:
 
     ALLOWED_TOOLS = {"web_search", "get_news"}
 
-    def __init__(self, client: Mistral):
+    def __init__(self, client):
         self.client = client
 
     def maybe_request_clarification(self, brief: DataBrief) -> ClarificationRequest | None:
