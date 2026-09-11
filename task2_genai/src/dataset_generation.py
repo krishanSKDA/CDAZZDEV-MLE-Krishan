@@ -24,9 +24,9 @@ This is chosen deliberately over a generic chatbot/creative task: outputs
 are checkable against a fixed taxonomy, which is what makes rigorous
 ROUGE-L / hallucination-rate evaluation in Task 2C meaningful.
 
-Dataset generation uses Groq Llama-3-70B as the teacher model. The full
-system prompt used is TEACHER_SYSTEM_PROMPT below (also required in the
-submission per Section 2.2).
+Dataset generation uses Mistral AI as the teacher model. The full system
+prompt used is TEACHER_SYSTEM_PROMPT below (also required in the submission
+per Section 2.2).
 """
 from __future__ import annotations
 
@@ -35,12 +35,12 @@ import os
 import random
 from collections import Counter
 
-from groq import Groq
+from mistralai import Mistral
 from pydantic import ValidationError
 
 from schemas import TrainingExample
 
-TEACHER_MODEL = "llama-3.3-70b-versatile"
+TEACHER_MODEL = "mistral-large-latest"
 
 CLAUSE_TYPES = [
     "data_privacy", "conflict_of_interest", "anti_money_laundering",
@@ -83,14 +83,17 @@ classify it. Respond with ONLY a JSON object, no markdown fences:
 }"""
 
 
-def _client() -> Groq:
-    return Groq(api_key=os.environ["GROQ_API_KEY"])
+def _client() -> Mistral:
+    api_key = os.environ.get("MISTRAL_API_KEY")
+    if not api_key:
+        raise EnvironmentError("MISTRAL_API_KEY not set")
+    return Mistral(api_key=api_key)
 
 
-def generate_one_example(client: Groq, clause_type: str, risk_level: str) -> TrainingExample | None:
+def generate_one_example(client: Mistral, clause_type: str, risk_level: str) -> TrainingExample | None:
     user_prompt = f"clause_type: {clause_type}\nrisk_level: {risk_level}"
     try:
-        resp = client.chat.completions.create(
+        resp = client.chat.complete(
             model=TEACHER_MODEL,
             messages=[
                 {"role": "system", "content": TEACHER_SYSTEM_PROMPT},

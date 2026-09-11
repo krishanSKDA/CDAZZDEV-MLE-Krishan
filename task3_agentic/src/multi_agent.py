@@ -17,20 +17,23 @@ from __future__ import annotations
 import json
 import os
 
-from groq import Groq
+from mistralai import Mistral
 
 from tools import get_price_data, calculate_volatility, llm_sentiment, get_news, web_search
 from schemas import DataBrief, ClarificationRequest, ResearchReport, RiskItem
 
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "mistral-large-latest"
 
 
-def _client() -> Groq:
-    return Groq(api_key=os.environ["GROQ_API_KEY"])
+def _client() -> Mistral:
+    api_key = os.environ.get("MISTRAL_API_KEY")
+    if not api_key:
+        raise EnvironmentError("MISTRAL_API_KEY not set")
+    return Mistral(api_key=api_key)
 
 
-def _llm_json(client: Groq, system: str, user: str) -> dict:
-    resp = client.chat.completions.create(
+def _llm_json(client: Mistral, system: str, user: str) -> dict:
+    resp = client.chat.complete(
         model=MODEL,
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
         response_format={"type": "json_object"},
@@ -48,7 +51,7 @@ class DataAnalystAgent:
 
     ALLOWED_TOOLS = {"get_price_data", "calculate_volatility", "llm_sentiment"}
 
-    def __init__(self, client: Groq):
+    def __init__(self, client: Mistral):
         self.client = client
 
     def build_brief(self, ticker: str) -> DataBrief:
@@ -104,7 +107,7 @@ class ResearchWriterAgent:
 
     ALLOWED_TOOLS = {"web_search", "get_news"}
 
-    def __init__(self, client: Groq):
+    def __init__(self, client: Mistral):
         self.client = client
 
     def maybe_request_clarification(self, brief: DataBrief) -> ClarificationRequest | None:

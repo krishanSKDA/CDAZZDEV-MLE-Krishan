@@ -4,7 +4,7 @@ No GPU needed. Should take ~15-20 minutes. Do this after Task 1 so your repo
 is already pushed.
 
 ## 1. Prerequisites
-- Same Groq API key as Task 1 (console.groq.com).
+- Same Mistral AI API key as Task 1.
 - Repo pushed to GitHub with `task1_financial/src/` present too -- Task 3
   reuses `indicators.py` from Task 1 for `get_price_data`.
 
@@ -21,7 +21,7 @@ calls in the notebook work:
 ```
 
 ## 3. Add the Colab Secret
-Same as Task 1: key icon > add `GROQ_API_KEY` > toggle notebook access on.
+Same as Task 1: key icon > add `MISTRAL_API_KEY` > toggle notebook access on.
 
 ## 4. Run all cells top to bottom
 Watch for these sections in order:
@@ -64,4 +64,4 @@ Edit `TICKER = 'AAPL'` in the third code cell.
 | Agent calls `get_news` before it has a reason to | Model's own reasoning, not a bug | This is fine -- the rubric wants autonomous ordering, not a specific order. Just make sure it isn't the exact same fixed order every single run (try 2 different tickers to demonstrate variation) |
 | `duckduckgo_search` returns empty results | Rate limiting on the free library | Re-run the cell after a short pause, or reduce `max_results` |
 | Critique loop doesn't trigger | Agent A already populated `news_sentiment_score` some other way | Check `multi_agent.py`'s `maybe_request_clarification` -- by design it only fires when that field is `None`, which is the expected first-run behaviour |
-| `KeyError` on `GROQ_API_KEY` inside `tools.py` | Secret not exported to `os.environ` yet | Make sure you ran the secrets cell (step 3) *before* any tool-using cell |
+| `KeyError` on `MISTRAL_API_KEY` inside `tools.py` | Secret not exported to `os.environ` yet | Make sure you ran the secrets cell (step 3) *before* any tool-using cell |

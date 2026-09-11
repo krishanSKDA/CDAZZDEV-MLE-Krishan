@@ -17,11 +17,11 @@ from dataclasses import dataclass
 
 from rouge_score import rouge_scorer
 from bert_score import score as bertscore
-from groq import Groq
+from mistralai import Mistral
 
 from schemas import JudgeScore, ManualReviewLabel
 
-JUDGE_MODEL = "llama-3.3-70b-versatile"
+JUDGE_MODEL = "mistral-large-latest"
 
 JUDGE_SYSTEM_PROMPT = """You are grading a financial compliance clause
 classifier's output against a gold-standard answer. Score on a 1-5 scale
@@ -55,9 +55,9 @@ def compute_bertscore_f1(predictions: list[str], references: list[str]) -> float
     return float(f1.mean())
 
 
-def llm_judge(client: Groq, prediction: str, reference: str) -> JudgeScore | None:
+def llm_judge(client: Mistral, prediction: str, reference: str) -> JudgeScore | None:
     try:
-        resp = client.chat.completions.create(
+        resp = client.chat.complete(
             model=JUDGE_MODEL,
             messages=[
                 {"role": "system", "content": JUDGE_SYSTEM_PROMPT},

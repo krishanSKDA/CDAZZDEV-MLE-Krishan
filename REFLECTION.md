@@ -16,17 +16,17 @@ which is what the rubric is actually testing.
 **Task 2.** I chose a financial compliance clause classifier over a
 generic chatbot use case specifically because it has a checkable, fixed
 output taxonomy -- without that, ROUGE-L and hallucination-rate metrics
-are close to meaningless. The teacher (Groq-hosted Llama-3-70B) and student
-(locally fine-tuned Phi-3-mini) are deliberately different models. Every
-QLoRA hyperparameter is justified inline rather than left at a library
-default, per the rubric's explicit requirement.
+are close to meaningless. The teacher (Mistral-hosted Mistral Large) and
+student (locally fine-tuned Phi-3-mini) are deliberately different models.
+Every QLoRA hyperparameter is justified inline rather than left at a
+library default, per the rubric's explicit requirement.
 
 **Task 3.** Rather than using a framework's black-box AgentExecutor, I
-implemented the single agent as an explicit ReAct loop over Groq's native
-tool-calling, so the "observe result, decide next action" cycle is visible
-in notebook output rather than hidden inside library internals. For the
-multi-agent system, tool-access restriction is enforced by construction --
-each agent class only imports the tools it's allowed to call -- and the
+implemented the single agent as an explicit ReAct loop over Mistral AI's
+native tool-calling, so the "observe result, decide next action" cycle is
+visible in notebook output rather than hidden inside library internals. For
+the multi-agent system, tool-access restriction is enforced by construction
+-- each agent class only imports the tools it's allowed to call -- and the
 Agent A -> Agent B handoff uses a Pydantic `DataBrief`, never a raw string.
 A single `@observed_tool` decorator centralises all `agent_trace.jsonl`
 logging so both the single- and multi-agent paths are captured uniformly.
@@ -50,10 +50,10 @@ logging so both the single- and multi-agent paths are captured uniformly.
 ## Limitations encountered
 
 - This was built and reviewed in an AI-assistant sandbox with no GPU and no
-  access to the Groq/yfinance/Hugging Face network endpoints, so the pure
+  access to the Mistral/yfinance/Hugging Face network endpoints, so the pure
   logic (indicator math, Pydantic validation, dataset diversity reporting,
   JSONL formatting, the observability decorator, ROUGE-L scoring) was
-  unit-tested against synthetic inputs, but the live API/GPU paths (Groq
+  unit-tested against synthetic inputs, but the live API/GPU paths (Mistral
   calls, yfinance fetches, the actual QLoRA training run, BERTScore, and
   the LLM-judge) have not yet been executed end-to-end -- that must happen
   in Colab before submission, with real outputs left visible in the

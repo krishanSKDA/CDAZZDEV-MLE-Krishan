@@ -1,10 +1,9 @@
 """
 Task 3A - Tool-Using Research Agent
 
-Implemented as an explicit ReAct loop on top of Groq's native tool-calling
-API (rather than a black-box LangChain AgentExecutor) so the
-observe -> decide -> act cycle is fully visible in notebook output, which
-the rubric explicitly asks for.
+Implemented as an explicit ReAct loop on top of Mistral AI's native
+function-calling API so the observe -> decide -> act cycle is fully visible
+in notebook output, which the rubric explicitly asks for.
 
 The agent is NOT given a hard-coded tool call sequence: at every step, the
 full conversation history (including all prior tool results) is sent back
@@ -17,11 +16,11 @@ import json
 import os
 from typing import Callable
 
-from groq import Groq
+from mistralai import Mistral
 
 from tools import get_price_data, get_news, calculate_volatility, llm_sentiment, web_search
 
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "mistral-large-latest"
 MAX_STEPS = 8
 
 TOOL_REGISTRY: dict[str, Callable] = {
@@ -124,7 +123,10 @@ def run_agent(query: str, verbose: bool = True) -> dict:
     `trace` records each (tool_call, observation, next_decision) for the
     'observe and replan' rubric criterion.
     """
-    client = Groq(api_key=os.environ["GROQ_API_KEY"])
+    api_key = os.environ.get("MISTRAL_API_KEY")
+    if not api_key:
+        raise EnvironmentError("MISTRAL_API_KEY not set")
+    client = Mistral(api_key=api_key)
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": query},
@@ -132,7 +134,7 @@ def run_agent(query: str, verbose: bool = True) -> dict:
     trace = []
 
     for step in range(MAX_STEPS):
-        response = client.chat.completions.create(
+        response = client.chat.complete(
             model=MODEL, messages=messages, tools=TOOL_SPECS, tool_choice="auto", temperature=0.2,
         )
         msg = response.choices[0].message

@@ -5,7 +5,7 @@ API calls), training (~20-40 min on a T4 for 3 epochs on ~120 examples), and
 evaluation (~15-20 min, mostly model loading + generation). Do this last.
 
 ## 1. Prerequisites
-- Groq API key (same as Tasks 1 & 3).
+- Mistral AI API key (same as Tasks 1 & 3).
 - (Optional but recommended) Hugging Face account + access token, so you can
   push the merged model: huggingface.co/settings/tokens > New token > role
   "write".
@@ -22,14 +22,14 @@ evaluation (~15-20 min, mostly model loading + generation). Do this last.
 
 ## 3. Add Colab Secrets
 Key icon > left sidebar:
-- `GROQ_API_KEY` (required)
+- `MISTRAL_API_KEY` (required)
 - `HF_TOKEN` (optional -- only needed to push the merged model to the Hub;
   if you skip it, the model still saves locally and you can use the Google
   Drive alternative deliverable instead)
 
 ## 4. Run Task 2A cells (dataset generation)
-- This calls Groq ~150 times (one per training example) -- expect a few
-  minutes, and Groq's free tier has rate limits, so if you hit a 429 error,
+- This calls Mistral AI ~150 times (one per training example) -- expect a few
+  minutes, and API limits may apply, so if you hit a 429 error,
   just re-run the cell; it will pick up where reasonable (or reduce `n=150`
   to `n=100` for the minimum requirement if you're rate-limited).
 - **Check the diversity report output carefully.** If `max_single_topic_share`
@@ -64,7 +64,7 @@ Key icon > left sidebar:
    doesn't, that's a real result to discuss honestly in REFLECTION.md, not
    something to hide.
 4. LLM-as-judge cell scores each fine-tuned response 1-5 on three
-   dimensions via Groq.
+   dimensions via Mistral AI.
 5. `manual_review_and_hallucination_rate(...)` currently has a **placeholder**
    (`label = "correct"` for every response) -- you must edit this to
    actually read each of the 10 printed responses and assign a real label
@@ -92,6 +92,6 @@ Key icon > left sidebar:
 |---|---|---|
 | CUDA OOM during training | T4's 16GB exceeded | See step 5.4 and the comment in `finetune_qlora.py` |
 | `bert_score` import/download hangs | First-time download of the BERT scoring model (~400MB) | Just wait; it only downloads once per Colab session |
-| Groq 429 rate-limit errors during dataset generation | Free tier request-per-minute limit | Add a short `time.sleep(1)` between calls in `generate_dataset`, or reduce `n` |
+| Mistral API rate-limit errors during dataset generation | Request-per-minute limit | Add a short `time.sleep(1)` between calls in `generate_dataset`, or reduce `n` |
 | `push_to_hub` fails with 401 | `HF_TOKEN` missing or lacks "write" role | Regenerate the token with write access, re-add as a Colab secret |
 | Fine-tuned ROUGE-L is *lower* than base | Possible: too few epochs, dataset too homogeneous, or LR too high/low | Don't fudge results -- document it honestly in REFLECTION.md and note what you'd try (more epochs, different rank, cleaner data) |

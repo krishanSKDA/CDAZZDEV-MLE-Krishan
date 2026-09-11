@@ -25,9 +25,9 @@ Representative prompts used:
   comments, and a ROUGE-L / BERTScore / LLM-judge / hallucination-rate
   evaluation harness."
 - "Build a single tool-using research agent with a manual ReAct loop over
-  Groq tool-calling so the observe/replan cycle is visible, then a two-agent
-  pipeline with restricted tool access, a Pydantic handoff schema, and a
-  one-shot critique loop, plus an @observed_tool decorator that logs to
+  Mistral AI function-calling so the observe/replan cycle is visible, then a
+  two-agent pipeline with restricted tool access, a Pydantic handoff schema,
+  and a one-shot critique loop, plus an @observed_tool decorator that logs to
   agent_trace.jsonl and short-term/persistent memory helpers."
 
 **All AI-drafted code was reviewed, adjusted, and partially validated by
@@ -37,9 +37,9 @@ before inclusion.** I take responsibility for every design decision in this
 submission and can defend each one in the follow-up interview.
 
 ## What still needs to be done by the candidate before submission
-- Running each notebook against a live Groq API key and a real T4 GPU
+- Running each notebook against a live Mistral AI API key and a real T4 GPU
   session in Colab (this could not be executed in the AI assistant's
-  sandbox, which has no GPU and no access to the Groq/yfinance/HF endpoints).
+  sandbox, which has no GPU and no access to the Mistral/yfinance/HF endpoints).
 - Filling in the Task 2C qualitative-analysis paragraphs with real
   observations from the actual fine-tuning run.
 - Manually labelling the >= 10 fine-tuned responses in
@@ -50,8 +50,8 @@ submission and can defend each one in the follow-up interview.
 ## Open-source code adapted
 No third-party repository code was copied or adapted beyond standard,
 publicly-documented library usage (yfinance, transformers, peft, trl,
-bitsandbytes, groq, duckduckgo-search, rouge_score, bert_score) per their
-respective official APIs/docs.
+bitsandbytes, mistralai, duckduckgo-search, rouge_score, bert_score) per
+their respective official APIs/docs.
 
 ## Teacher model system prompt (Task 2A)
 The full teacher system prompt used for synthetic training-data generation
