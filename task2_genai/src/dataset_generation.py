@@ -35,7 +35,10 @@ import os
 import random
 from collections import Counter
 
-from mistralai import Mistral
+try:
+    from mistralai import Mistral
+except ImportError:  # newer SDK layout
+    from mistralai.client import Mistral
 from pydantic import ValidationError
 
 from schemas import TrainingExample

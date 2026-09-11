@@ -17,7 +17,10 @@ from dataclasses import dataclass
 
 from rouge_score import rouge_scorer
 from bert_score import score as bertscore
-from mistralai import Mistral
+try:
+    from mistralai import Mistral
+except ImportError:  # newer SDK layout
+    from mistralai.client import Mistral
 
 from schemas import JudgeScore, ManualReviewLabel
 

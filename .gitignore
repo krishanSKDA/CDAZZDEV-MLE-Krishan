@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+*.venv/
+.conda/
+.python-version
+
+# Python caches and local tooling
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pdm-build/
+.pyre/
+
+# Jupyter / notebooks
+.ipynb_checkpoints/
+
+# Local package caches
+.cache/
+.cache*/
+
+# Environment files
+.env
+.env.*
+*.env
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Models / caches / generated artifacts
+*.bin
+*.pt
+*.ckpt
+*.safetensors
+checkpoints/
+cache/
+output/
+artifacts/
+
+# Build output
+build/
+dist/
+*.egg-info/
+
+# Data files (optional if you want to keep them tracked)
+# data/
+# *.csv
+# *.parquet
+
+# Notebook outputs
+*.html
+
+# Local config
+*.local

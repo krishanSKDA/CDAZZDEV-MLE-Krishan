@@ -17,7 +17,10 @@ import logging
 import os
 from typing import Optional
 
-from mistralai import Mistral
+try:
+    from mistralai import Mistral
+except ImportError:  # newer SDK layout
+    from mistralai.client import Mistral
 from pydantic import ValidationError
 
 from schemas import HeadlineSentiment, AggregateSentiment, TradeSignal

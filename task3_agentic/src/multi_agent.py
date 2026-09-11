@@ -17,7 +17,10 @@ from __future__ import annotations
 import json
 import os
 
-from mistralai import Mistral
+try:
+    from mistralai import Mistral
+except ImportError:  # newer SDK layout
+    from mistralai.client import Mistral
 
 from tools import get_price_data, calculate_volatility, llm_sentiment, get_news, web_search
 from schemas import DataBrief, ClarificationRequest, ResearchReport, RiskItem

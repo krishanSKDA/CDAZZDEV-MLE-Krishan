@@ -16,7 +16,10 @@ import json
 import os
 from typing import Callable
 
-from mistralai import Mistral
+try:
+    from mistralai import Mistral
+except ImportError:  # newer SDK layout
+    from mistralai.client import Mistral
 
 from tools import get_price_data, get_news, calculate_volatility, llm_sentiment, web_search
 
