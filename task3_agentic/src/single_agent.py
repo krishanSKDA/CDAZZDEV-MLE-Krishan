@@ -20,7 +20,7 @@ import google.generativeai as genai
 
 from tools import get_price_data, get_news, calculate_volatility, llm_sentiment, web_search
 
-MODEL = "gemini-2.0-flash"
+MODEL = "gemini-3.6-flash"
 MAX_STEPS = 8
 
 TOOL_REGISTRY: dict[str, Callable] = {

@@ -40,7 +40,7 @@ from pydantic import ValidationError
 
 from schemas import TrainingExample
 
-TEACHER_MODEL = "gemini-2.0-flash"
+TEACHER_MODEL = "gemini-3.6-flash"
 
 CLAUSE_TYPES = [
     "data_privacy", "conflict_of_interest", "anti_money_laundering",

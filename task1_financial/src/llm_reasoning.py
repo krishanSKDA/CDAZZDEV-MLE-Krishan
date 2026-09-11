@@ -24,7 +24,7 @@ from schemas import HeadlineSentiment, AggregateSentiment, TradeSignal
 
 logger = logging.getLogger("llm_reasoning")
 
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-3.6-flash"
 
 # ---------------------------------------------------------------------------
 # Prompt templates (kept separate from business logic)

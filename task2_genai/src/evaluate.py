@@ -21,7 +21,7 @@ import google.generativeai as genai
 
 from schemas import JudgeScore, ManualReviewLabel
 
-JUDGE_MODEL = "gemini-2.0-flash"
+JUDGE_MODEL = "gemini-3.6-flash"
 
 JUDGE_SYSTEM_PROMPT = """You are grading a financial compliance clause
 classifier's output against a gold-standard answer. Score on a 1-5 scale

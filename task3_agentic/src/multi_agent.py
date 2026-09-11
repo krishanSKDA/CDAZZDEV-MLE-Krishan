@@ -22,7 +22,7 @@ import google.generativeai as genai
 from tools import get_price_data, calculate_volatility, llm_sentiment, get_news, web_search
 from schemas import DataBrief, ClarificationRequest, ResearchReport, RiskItem
 
-MODEL = "gemini-2.0-flash"
+MODEL = "gemini-3.6-flash"
 
 
 def _client():

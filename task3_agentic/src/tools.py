@@ -105,7 +105,7 @@ def llm_sentiment(headlines: list[str]) -> dict:
         if not api_key:
             return {"error": "GEMINI_API_KEY not set"}
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-3.6-flash")
         prompt = (
             "Classify the overall sentiment of these financial news headlines as a "
             "JSON object with fields overall_score (-1 to 1), positive_count, "
