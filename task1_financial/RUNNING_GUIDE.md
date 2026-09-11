@@ -2,10 +2,10 @@
 
 No GPU needed. Should take ~10-15 minutes including API key setup.
 
-## 1. Get a free Groq API key
-1. Go to https://console.groq.com and sign up (free).
-2. Left sidebar > API Keys > Create API Key.
-3. Copy the key (starts with `gsk_...`). You won't see it again -- if you lose it, just create a new one.
+## 1. Get a Mistral AI API key
+1. Go to https://console.mistral.ai and sign up.
+2. Open the API keys section and create a new key.
+3. Copy the key and keep it secure. If you lose it, create a new one in the dashboard.
 
 ## 2. Push the repo to GitHub (if you haven't yet)
 1. Create a new **public** repo named `CDAZZDEV-MLE-[YourName]` on github.com.
@@ -27,9 +27,9 @@ No GPU needed. Should take ~10-15 minutes including API key setup.
   then also upload the `task1_financial/src/` folder into the Colab file
   browser (left sidebar, folder icon) so the imports resolve.
 
-## 4. Add your Groq key as a Colab Secret (do NOT paste it into a cell)
+## 4. Add your Mistral key as a Colab Secret (do NOT paste it into a cell)
 1. Click the key icon in Colab's left sidebar ("Secrets").
-2. Add new secret: name = `GROQ_API_KEY`, value = your key.
+2. Add new secret: name = `MISTRAL_API_KEY`, value = your key.
 3. Toggle "Notebook access" on for this notebook.
 
 ## 5. Run all cells
@@ -52,7 +52,7 @@ Edit the `TICKER = 'AAPL'` line in the third code cell to any valid ticker
 ## Common issues
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `EnvironmentError: GROQ_API_KEY not set` | Secret not added or toggle off | Re-check step 4, make sure "Notebook access" is on |
+| `EnvironmentError: MISTRAL_API_KEY not set` | Secret not added or toggle off | Re-check step 4, make sure "Notebook access" is on |
 | `ModuleNotFoundError: No module named 'indicators'` | `src/` not visible to the notebook | Make sure you opened the notebook *from within* the cloned repo structure, or manually upload `src/` next to the notebook in Colab's file browser |
 | News list has fewer than 10 headlines | yfinance's news endpoint varies by ticker/time | Try a large-cap ticker (AAPL, MSFT); if still short, note it as a limitation in REFLECTION.md, or add an RSS fallback |
 | `Signal generation failed validation` in the HTML report | LLM produced a justification under 3 sentences | Re-run that cell; the retry logic already handles one retry, a second manual re-run usually succeeds |
